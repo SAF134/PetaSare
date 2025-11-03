@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>PetaSare.com</title>
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    
+    <meta name="description" content="Peta interaktif hotel di Bandung dengan filter lengkap, rating, harga, dan fasilitas. Temukan hotel yang sempurna untuk Anda." />
+    <meta name="author" content="PetaSare.com" />
+
+    <meta property="og:title" content="PetaSare.com" />
+    <meta property="og:description" content="Peta interaktif hotel di Bandung dengan filter lengkap, rating, harga, dan fasilitas. Temukan hotel yang sempurna untuk Anda." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="preloader">
+      <img src="/src/assets/PetaSarePolos.png" alt="PetaSare Loading..." class="loader-logo" />
+    </div>
+    <style>
+      #preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 9999;
+        /* Latar belakang default untuk mode terang */
+        background: linear-gradient(to bottom, #ffffff, #f8fafc);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+      }
+
+      /* Latar belakang untuk mode gelap */
+      @media (prefers-color-scheme: dark) {
+        #preloader {
+          background: linear-gradient(to bottom, #020817, #0d1321);
+        }
+      }
+
+      .loader-logo {
+        width: 80px;
+        height: 80px;
+        animation: drop-bounce 1.5s cubic-bezier(0.5, 0.05, 1, 0.5) infinite;
+      }
+
+      @keyframes drop-bounce {
+        0% {
+          transform: translateY(-100px) scaleY(0.7);
+          opacity: 0.7;
+        }
+        25% {
+          opacity: 1;
+        }
+        50% {
+          transform: translateY(0) scaleY(1);
+        }
+        75% {
+          transform: translateY(-15px) scaleY(0.9);
+        }
+        100% {
+          transform: translateY(0) scaleY(1);
+        }
+      }
+
+      #preloader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+    </style>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
