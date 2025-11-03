@@ -1,3 +1,10 @@
+export interface Review {
+  user: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
 export interface Hotel {
   id: number;
   nama: string;
@@ -13,6 +20,7 @@ export interface Hotel {
   traveloka: string;
   agoda: string;
   peta: string;
+  ulasan?: Review[];
 }
 
 export const FASILITAS_LIST = [
@@ -57,7 +65,21 @@ export const hotels: Hotel[] = [
     "harga": 157000,
     "traveloka": "https://www.traveloka.com/id-id/hotel/indonesia/capital-o-3952-hotel-c-18-cibaduyut-9000000889722",
     "agoda": "https://www.agoda.com/id-id/oyo-3952-hotel-c-18-cibaduyut/hotel/bandung-id.html?countryId=192&finalPriceView=1&isShowMobileAppPrice=false&cid=1922865&numberOfBedrooms=&familyMode=false&adults=1&children=0&rooms=1&maxRooms=0&checkIn=2025-11-3&isCalendarCallout=false&childAges=&numberOfGuest=0&missingChildAges=false&travellerType=-1&showReviewSubmissionEntry=false&currencyCode=IDR&isFreeOccSearch=false&tag=748a0765-78a7-4143-be94-968d2813c8e2&los=1&searchrequestid=89cf1d08-b7e6-473a-9a2c-15ce76c1b88e&ds=ppCcOeRHey%2Fn6yAn",
-    "peta": "https://maps.app.goo.gl/H5YEiZp9Z2t99YCP9"
+    "peta": "https://maps.app.goo.gl/H5YEiZp9Z2t99YCP9",
+    "ulasan": [
+      {
+        "user": "Budi Santoso",
+        "rating": 4,
+        "comment": "Lokasi strategis dekat dengan sentra sepatu Cibaduyut. Kamar bersih meskipun tidak terlalu luas. Cocok untuk perjalanan bisnis singkat.",
+        "date": "2024-07-15"
+      },
+      {
+        "user": "Citra Lestari",
+        "rating": 3,
+        "comment": "Harga terjangkau, tapi fasilitas standar. AC berfungsi baik. Staf ramah dan membantu.",
+        "date": "2024-06-28"
+      }
+    ]
   },
   {
     "id": 2,
@@ -89,7 +111,21 @@ export const hotels: Hotel[] = [
     "harga": 134000,
     "traveloka": "https://www.traveloka.com/en-sg/hotel/indonesia/hotel-c18-at-cibaduyut-mitra-reddoorz-9000003308246",
     "agoda": "https://www.agoda.com/oyo-259-galaxy-inn/hotel/bandung-id.html?cid=1844104&ds=kbNmFKzQt9b%2BRmZT",
-    "peta": "https://maps.app.goo.gl/Ci1i5noCGmCM8Bwe8"
+    "peta": "https://maps.app.goo.gl/Ci1i5noCGmCM8Bwe8",
+    "ulasan": [
+      {
+        "user": "Rina Amelia",
+        "rating": 5,
+        "comment": "Sangat puas! Dengan harga segitu, kamarnya bersih dan nyaman. Lokasinya juga mudah dijangkau. Pasti akan kembali lagi.",
+        "date": "2024-08-01"
+      },
+      {
+        "user": "Doni Firmansyah",
+        "rating": 4,
+        "comment": "Value for money yang luar biasa. Stafnya ramah dan proses check-in cepat. Recommended untuk budget traveler.",
+        "date": "2024-07_22"
+      }
+    ]
   },
   {
     "id": 4,
@@ -2123,4 +2159,4 @@ export const hotels: Hotel[] = [
     "agoda": "https://www.agoda.com/crowne-plaza-bandung/hotel/bandung-id.html?countryId=192&finalPriceView=1&isShowMobileAppPrice=false&cid=1844104&numberOfBedrooms=&familyMode=false&adults=2&children=0&rooms=1&maxRooms=0&checkIn=2025-10-25&isCalendarCallout=false&childAges=&numberOfGuest=0&missingChildAges=false&travellerType=1&showReviewSubmissionEntry=false&currencyCode=IDR&isFreeOccSearch=false&los=1&searchrequestid=a340f77b-fee3-4688-aff1-747a19a27915&ds=XfHhLBwOyBBIzost",
     "peta": "https://maps.app.goo.gl/KEqhkPfip2cXAoUs6"
   }
-]
+];

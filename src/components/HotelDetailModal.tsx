@@ -1,7 +1,5 @@
-import { Hotel } from "@/data/hotels";
-import TravelokaLogo from "@/assets/traveloka.png";
-import AgodaLogo from "@/assets/agoda.png";
-import GoogleMapsLogo from "@/assets/googlemaps.png";
+import { useState, useEffect } from "react";
+import { Hotel, Review } from "@/data/hotels";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +35,7 @@ import {
 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { HotelReviews } from "./HotelReviews";
 
 interface HotelDetailModalProps {
   hotel: Hotel | null;
@@ -45,7 +44,24 @@ interface HotelDetailModalProps {
 }
 
 export const HotelDetailModal = ({ hotel, isOpen, onClose }: HotelDetailModalProps) => {
-  if (!hotel) return null;
+  const [currentHotel, setCurrentHotel] = useState<Hotel | null>(hotel);
+
+  useEffect(() => {
+    setCurrentHotel(hotel);
+  }, [hotel]);
+
+  if (!currentHotel) return null;
+
+  const handleAddReview = (newReview: Review) => {
+    setCurrentHotel(prevHotel => prevHotel ? {
+      ...prevHotel,
+      ulasan: [newReview, ...(prevHotel.ulasan || [])]
+    } : null);
+  };
+
+  const handleDeleteReview = (reviewIndex: number) => {
+    // Fungsi ini sengaja dikosongkan karena fitur hapus ulasan dari localStorage dihilangkan.
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -89,8 +105,8 @@ export const HotelDetailModal = ({ hotel, isOpen, onClose }: HotelDetailModalPro
             {/* Left Column: Image */}
             <div className="relative md:h-full min-h-[300px]">
               <img
-                src={hotel.gambar}
-                alt={hotel.nama}
+                src={currentHotel.gambar}
+                alt={currentHotel.nama}
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none"
               />
@@ -100,12 +116,12 @@ export const HotelDetailModal = ({ hotel, isOpen, onClose }: HotelDetailModalPro
             {/* Right Column: Details */}
             <div className="p-6 md:p-8 flex flex-col">
               <DialogHeader className="mb-4">
-                <Badge variant="secondary" className="text-sm font-medium w-fit mb-2">{hotel.kategori}</Badge>
-                <DialogTitle className="text-3xl font-bold text-foreground">{hotel.nama}</DialogTitle>
+                <Badge variant="secondary" className="text-sm font-medium w-fit mb-2">{currentHotel.kategori}</Badge>
+                <DialogTitle className="text-3xl font-bold text-foreground">{currentHotel.nama}</DialogTitle>
                 <DialogDescription className="flex items-center gap-2 text-lg pt-1">
                   <div className="flex items-center gap-1 font-bold text-amber-500">
                     <Star className="h-5 w-5 fill-current" />
-                    <span>{hotel.rating.toFixed(1)}</span>
+                    <span>{currentHotel.rating.toFixed(1)}</span>
                   </div>
                   <span className="text-muted-foreground">/ 5.0</span>
                 </DialogDescription>
@@ -114,18 +130,18 @@ export const HotelDetailModal = ({ hotel, isOpen, onClose }: HotelDetailModalPro
               <div className="space-y-4 text-muted-foreground text-sm flex-grow">
                 <div className="flex items-start gap-4">
                   <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0 text-primary" />
-                  <p>{hotel.alamat}</p>
+                  <p>{currentHotel.alamat}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <Phone className="h-5 w-5 flex-shrink-0 text-primary" />
-                  <p>{hotel.kontak || "Tidak tersedia"}</p>
+                  <p>{currentHotel.kontak || "Tidak tersedia"}</p>
                 </div>
               </div>
 
               <div className="my-6">
                 <h4 className="font-semibold text-foreground mb-3 text-base">Fasilitas Unggulan</h4>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                  {hotel.fasilitas.map((fasilitas, index) => {
+                  {currentHotel.fasilitas.map((fasilitas, index) => {
                     const Icon = facilityIcons[fasilitas] || HelpCircle;
                     return (
                       <div key={index} className="flex items-center gap-3">
@@ -140,7 +156,7 @@ export const HotelDetailModal = ({ hotel, isOpen, onClose }: HotelDetailModalPro
               <div className="my-4 p-4 bg-primary/10 rounded-lg flex items-center justify-between">
                 <div>
                   <span className="text-sm font-medium text-foreground">Harga mulai dari</span>
-                  <p className="text-2xl font-bold text-primary">{formatPrice(hotel.harga)}</p>
+                  <p className="text-2xl font-bold text-primary">{formatPrice(currentHotel.harga)}</p>
                 </div>
                 <span className="text-sm text-muted-foreground self-end">/ malam</span>
               </div>
@@ -148,29 +164,32 @@ export const HotelDetailModal = ({ hotel, isOpen, onClose }: HotelDetailModalPro
               <div className="mt-4">
                 <h4 className="font-semibold text-foreground mb-3 text-base">Pemesanan</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {hotel.traveloka && (
+                  {currentHotel.traveloka && (
                     <Button asChild variant="outline" className="justify-start transition-transform hover:scale-105 active:scale-95">
-                      <a href={hotel.traveloka} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                        <img src={TravelokaLogo} alt="Traveloka" className="h-6 w-auto mr-2" /> Traveloka
+                      <a href={currentHotel.traveloka} target="_blank" rel="noopener noreferrer" className="flex items-center group">
+                        <img src="https://cdn.brandfetch.io/idN9w9iZUZ/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B" alt="Traveloka" className="h-6 w-auto mr-2 rounded-sm" /> Traveloka
                       </a>
                     </Button>
                   )}
-                  {hotel.agoda && (
+                  {currentHotel.agoda && (
                     <Button asChild variant="outline" className="justify-start transition-transform hover:scale-105 active:scale-95">
-                      <a href={hotel.agoda} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                        <img src={AgodaLogo} alt="Agoda" className="h-6 w-auto mr-2" /> Agoda
+                      <a href={currentHotel.agoda} target="_blank" rel="noopener noreferrer" className="flex items-center group">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Agoda_transparent_logo.png" alt="Agoda" className="h-6 w-auto mr-2 rounded-sm" /> Agoda
                       </a>
                     </Button>
                   )}
                 </div>
-                {hotel.peta && (
+                {currentHotel.peta && (
                   <Button asChild variant="default" className="w-full mt-3 transition-transform hover:scale-105 active:scale-95">
-                    <a href={hotel.peta} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                      <img src={GoogleMapsLogo} alt="Google Maps" className="h-6 w-auto mr-2 rounded-sm" /> Google Maps
+                    <a href={currentHotel.peta} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
+                      <img src="https://pngimg.com/uploads/google_maps_pin/google_maps_pin_PNG26.png" alt="Google Maps" className="h-6 w-auto mr-2" /> Google Maps
                     </a>
                   </Button>
                 )}
               </div>
+
+              {/* Bagian Ulasan Pengguna */}
+              <HotelReviews reviews={currentHotel.ulasan || []} onAddReview={handleAddReview} />
             </div>
           </div>
         </ScrollArea>

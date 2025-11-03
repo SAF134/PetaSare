@@ -10,15 +10,11 @@ import { Footer } from "@/components/Footer";
 import { useTheme } from "next-themes";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import cinematik1 from "@/assets/cinematik1.mp4";
-import cinematik2 from "@/assets/cinematik2.mp4";
-import cinematik3 from "@/assets/cinematik3.mp4";
 
 const Home = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -108,21 +104,6 @@ const Home = () => {
       },
     },
   };
-
-  const videos = [
-    {
-      src: cinematik1,
-      title: "Bandung Cinematic Video 1",
-    },
-    {
-      src: cinematik2,
-      title: "Bandung Cinematic Video 2",
-    },
-    {
-      src: cinematik3,
-      title: "Bandung Cinematic Video 3",
-    },
-  ];
 
   // Animation variants for the title in the header
   const titleContainerVariants = {
@@ -337,37 +318,6 @@ const Home = () => {
                   <p className="text-muted-foreground">
                     {feature.description}
                   </p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </motion.div>
-
-          {/* Video Section */}
-          <motion.div
-            className="pt-16 w-full"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-10">
-              Cinematic Video Kota Bandung
-            </h2>
-            <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {videos.map((video) => (
-                <motion.div
-                  key={video.src}
-                  className="bg-card border border-border rounded-xl p-4 hover:shadow-lg transition-all hover:scale-105 hover:border-primary/50"
-                  variants={itemVariants}
-                >
-                  <div className="aspect-video overflow-hidden rounded-md bg-black">
-                    <video
-                      className="w-full h-full"
-                      src={video.src}
-                      controls
-                      playsInline
-                    ></video>
-                  </div>
                 </motion.div>
               ))}
             </motion.div>

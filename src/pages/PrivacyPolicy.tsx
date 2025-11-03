@@ -6,6 +6,7 @@ import Logo from "@/assets/PetaSarePolos.png";
 import AnimatedPage from "@/components/AnimatedPage";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { motion, Variants } from "framer-motion";
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
@@ -18,6 +19,19 @@ const PrivacyPolicy = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const logoHoverVariants: Variants = {
+    initial: { scale: 1, rotate: 0 },
+    hover: {
+      scale: 1.1,
+      rotate: 5,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 10,
+      },
+    },
+  };
 
   return (
     <AnimatedPage>
@@ -41,10 +55,15 @@ const PrivacyPolicy = () => {
         <main className="flex-grow">
           <div className="bg-gradient-to-b from-white to-slate-50 dark:from-background dark:to-background/90 flex flex-col items-center pt-32 pb-16 px-4">
             <div className="max-w-3xl w-full space-y-10">
-              <div className="text-center space-y-4">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-orange-400">
+              <div className="text-center space-y-4">                
+                <motion.div
+                  className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-orange-400 cursor-pointer"
+                  variants={logoHoverVariants}
+                  initial="initial"
+                  whileHover="hover"
+                >
                   <img src={Logo} alt="PetaSare Logo" className="h-12 w-12 object-contain" />
-                </div>
+                </motion.div>
                 <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
                   Kebijakan Privasi
                 </h1>

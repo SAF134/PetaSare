@@ -63,6 +63,18 @@ const Hotels = () => {
     },
   };
 
+  const logoHoverVariants = {
+    initial: { scale: 1, rotate: 0 },
+    hover: {
+      scale: 1.1,
+      rotate: 5,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 10,
+      },
+    },
+  };
   const word = "PetaSare";
 
   // Load bookmarks from localStorage
@@ -233,9 +245,15 @@ const Hotels = () => {
               </TooltipTrigger>
               <TooltipContent><p>Kembali ke Beranda</p></TooltipContent>
             </Tooltip>
-            <div className="rounded-lg bg-orange-400 flex items-center justify-center transition-all duration-300 w-10 h-10">
+            <motion.div
+              className="rounded-lg bg-orange-400 flex items-center justify-center transition-all duration-300 w-10 h-10 cursor-pointer"
+              variants={logoHoverVariants}
+              initial="initial"
+              whileHover="hover"
+              onClick={() => navigate("/")}
+            >
               <img src={Logo} alt="PetaSare Logo" className="h-8 w-8 object-contain" />
-            </div>
+            </motion.div>
             <div>
               <motion.h1
                 variants={titleContainerVariants}
