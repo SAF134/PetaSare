@@ -45,7 +45,7 @@ export const FASILITAS_LIST = [
 export const hotels: Hotel[] = [
   {
     "id": 1,
-    "nama": "OYO 3952 HOTEL C 18 CIBADUYUTt4535t",
+    "nama": "OYO 3952 HOTEL C 18 CIBADUYUT123",
     "alamat": "Ruko C18, Mekarwangi Square, Apartemen & Commercial, C 18, Jl. Cibaduyut No.No, Bandung City, West Java 40236",
     "lat": -6.955768696065228,
     "lng": 107.59252976111152,
