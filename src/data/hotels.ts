@@ -53,7 +53,7 @@ export const FASILITAS_LIST = [
 export const hotels: Hotel[] = [
   {
     "id": 1,
-    "nama": "OYO 3952 HOTEL C 18 CIBADUYUT123",
+    "nama": "OYO 3952 HOTEL C 18 CIBADUYUT",
     "alamat": "Ruko C18, Mekarwangi Square, Apartemen & Commercial, C 18, Jl. Cibaduyut No.No, Bandung City, West Java 40236",
     "lat": -6.955768696065228,
     "lng": 107.59252976111152,
@@ -375,7 +375,7 @@ export const hotels: Hotel[] = [
     "lng": 107.61490932581333,
     "rating": 4.4,
     "kategori": "HOTEL BINTANG 2",
-    "gambar": "https://scontent.fbdo7-1.fna.fbcdn.net/v/t39.30808-6/448814840_122099966408374253_5106490321793347513_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=jF9Be_ru03YQ7kNvwHVNKdP&_nc_oc=AdkCF6jOew_pVBGn4U9ACjdcSzVOb3hDkHtc7ZTi3ph-HZhALwhhvGYgK-0Z-YLWbZDeDatQg_MFjTY-0jJ1-dGf&_nc_zt=23&_nc_ht=scontent.fbdo7-1.fna&_nc_gid=o9xuGQV6UGnPt7Ec2aasEA&oh=00_Afc5P7kIS12WkgqAEx8raXE_gZl2yYIP-I6a5RHibApI-A&oe=68F45D60",
+    "gambar": "https://pix8.agoda.net/property/36709720/0/410563df9b3171512d779f130298dd63.jpg?ce=0&s=1024x",
     "fasilitas": ["Wi-Fi gratis", "AC", "Parkir gratis", "Cocok untuk anak-anak"],
     "kontak": "02129706666",
     "harga": 228000,
