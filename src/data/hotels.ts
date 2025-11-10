@@ -215,7 +215,7 @@ export const hotels: Hotel[] = [
     "lng": 107.59939635491148,
     "rating": 3.6,
     "kategori": "HOTEL BINTANG 2",
-    "gambar": "http://zodiak-kebon-kawung.bandunghotel24.com/data/Photos/700x500w/7661/766159/766159669.JPEG",
+    "gambar": "https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/10000138-1000x667-FIT_AND_TRIM-33ff5838b4c0cb5d560015339734a5f5.jpeg?_src=imagekit&tr=dpr-2,c-at_max,f-jpg,h-360,pr-true,q-80,w-640",
     "fasilitas": ["Wi-Fi gratis", "Restoran", "Sarapan", "AC", "Layanan kamar", "Jemputan bandara", "Parkir gratis", "Layanan binatu", "Cocok untuk anak-anak"],
     "kontak": "0224266116",
     "harga": 208000,
