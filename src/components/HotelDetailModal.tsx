@@ -163,7 +163,7 @@ export const HotelDetailModal = ({ hotel, isOpen, onClose }: HotelDetailModalPro
 
               <div className="mt-4">
                 <h4 className="font-semibold text-foreground mb-3 text-base">Pemesanan</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   {currentHotel.traveloka && (
                     <Button asChild variant="outline" className="justify-start transition-transform hover:scale-105 active:scale-95">
                       <a href={currentHotel.traveloka} target="_blank" rel="noopener noreferrer" className="flex items-center group">

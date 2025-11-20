@@ -12,6 +12,7 @@ interface HotelCardProps {
   isBookmarked: boolean;
   onToggleBookmark: (id: number) => void;
   onGoToMap: (hotel: Hotel) => void;
+  distance?: number;
 }
 
 const formatPrice = (price: number) => {
@@ -42,6 +43,7 @@ export const HotelCard = ({
   isBookmarked,
   onToggleBookmark,
   onGoToMap,
+  distance,
 }: HotelCardProps) => {
   // Ekstrak jumlah bintang dari kategori untuk ditampilkan sebagai ikon
   const starMatch = hotel.kategori.match(/\d+/);
@@ -119,6 +121,11 @@ export const HotelCard = ({
           <MapPin className="inline-block h-4 w-4 mr-1" />
           {hotel.alamat}
         </p>
+        {distance !== undefined && (
+          <p className="text-sm text-primary font-semibold mt-2">
+            {distance.toFixed(2)} km dari lokasi Anda
+          </p>
+        )}
       </CardContent>
       <CardFooter className="p-4 pt-0 flex flex-col items-start gap-3">
         <div className="w-full">
