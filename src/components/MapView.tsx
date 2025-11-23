@@ -5,76 +5,107 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import "./MapView.css"; // Import CSS untuk animasi popup
-import { Hotel } from "@/data/hotels";
+import { Hotel, hotels } from "@/data/hotels";
+import { useLocation } from "@/contexts/LocationContext";
+import { calculateDistance } from "@/lib/distance";
+import { LocateFixed } from "lucide-react";
+import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { toast } from "sonner";
 
 interface MapViewProps {
   hotels: Hotel[];
   selectedHotel: Hotel | null;
   highlightedHotelId: number | null;
   onHotelClick: (hotel: Hotel) => void;
+  userLocation?: { lat: number; lng: number } | null;
+  onUserLocationChange: (location: { lat: number; lng: number }) => void;
+  onBoundsChange: (bounds: L.LatLngBounds) => void;
 }
 
 // Custom marker icons based on category
-const getMarkerIcon = (kategori: string, isHighlighted: boolean = false) => {
+const getMarkerIcon = (kategori: string, isHighlighted: boolean = false): L.DivIcon => {
   const colors: Record<string, string> = {
-    "HOTEL BINTANG 1": "#a8a29e", // stone-400
-    "HOTEL BINTANG 2": "#78716c", // stone-500
-    "HOTEL BINTANG 3": "#3b82f6", // blue-500
-    "HOTEL BINTANG 4": "#fbbf24", // amber-400
-    "HOTEL BINTANG 5": "#ef4444", // red-500
+    "HOTEL BINTANG 1": "hsl(220 15% 65%)", // muted-foreground
+    "HOTEL BINTANG 2": "hsl(220 20% 95%)", // foreground
+    "HOTEL BINTANG 3": "hsl(210 84% 62%)", // blue-500
+    "HOTEL BINTANG 4": "hsl(48 96% 59%)", // yellow-400
+    "HOTEL BINTANG 5": "hsl(var(--primary))", // primary
   };
 
   const color = colors[kategori] || "#94a3b8";
-  const size = isHighlighted ? 40 : 32;
-  
-  // Ekstrak jumlah bintang dari kategori
+  const textColor = (kategori === "HOTEL BINTANG 2" || kategori === "HOTEL BINTANG 4") ? 'hsl(var(--background))' : 'hsl(var(--primary-foreground))';
+  const size = isHighlighted ? 36 : 30;
+  const shadow = isHighlighted ? '0 4px 12px hsla(var(--primary), 0.4)' : '0 2px 6px rgba(0,0,0,0.3)';
+  const transform = isHighlighted ? 'scale(1.1)' : 'scale(1)';
+  const zIndex = isHighlighted ? 1000 : 'auto';
+
   const starMatch = kategori.match(/\d+/);
   const starCount = starMatch ? parseInt(starMatch[0], 10) : 0;
-
-  // Buat HTML untuk ikon bintang
-  // Menggunakan flexbox untuk penataan yang lebih baik, terutama untuk 1-3 bintang
-  const starsHtml = Array.from({ length: starCount }, () => `<span>★</span>`).join("");
 
   return L.divIcon({
     html: `
       <div style="
         background-color: ${color};
+        color: ${textColor};
         width: ${size}px;
         height: ${size}px;
-        border-radius: 50% 50% 50% 0;
-        transform: rotate(-45deg);
-        border: 3px solid ${isHighlighted ? '#f59e0b' : '#fff'};
-        box-shadow: ${isHighlighted ? '0 0 20px rgba(255, 184, 107, 0.6)' : '0 2px 8px rgba(0,0,0,0.3)'};
+        border-radius: 50%;
+        border: 2px solid ${isHighlighted ? 'hsl(var(--primary))' : 'hsl(var(--background))'};
+        box-shadow: ${shadow};
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
+        font-size: 14px;
+        font-weight: 700;
+        transition: all 0.2s ease-in-out;
+        transform: ${transform};
+        z-index: ${zIndex};
       ">
-        <div style="
-          color: #FFD700; /* Warna Emas */
-          font-size: ${starCount > 3 ? '10px' : '12px'};
-          font-weight: bold;
-          transform: rotate(45deg);
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          line-height: 1;
-        ">${starsHtml}</div>
+        ${starCount}★
       </div>
     `,
     className: "custom-marker",
     iconSize: [size, size],
-    iconAnchor: [size / 2, size],
-    popupAnchor: [0, -size],
+    iconAnchor: [size / 2, size / 2],
   });
 };
 
-export const MapView = ({ hotels, selectedHotel, highlightedHotelId, onHotelClick }: MapViewProps) => {
+// Custom icon for user location
+const userLocationIcon = L.divIcon({
+  html: `
+    <div class="relative flex items-center justify-center">
+      <div class="absolute w-6 h-6 bg-blue-500 rounded-full animate-ping-slow opacity-50"></div>
+      <div class="relative w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-md"></div>
+    </div>
+  `,
+  className: 'user-location-marker',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
+
+export const MapView = ({ 
+  hotels, 
+  selectedHotel, 
+  highlightedHotelId, 
+  onHotelClick, 
+  userLocation,
+  onUserLocationChange,
+  onBoundsChange
+}: MapViewProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const markersRef = useRef<Map<number, L.Marker>>(new Map());
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
+  const userLocationMarkerRef = useRef<L.Marker | null>(null);
 
+  const handleLocateUser = () => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+
+    map.locate({ setView: true, maxZoom: 16, enableHighAccuracy: true });
+  };
+  
   useEffect(() => {
     if (!mapRef.current) {
       // Initialize map
@@ -122,6 +153,23 @@ export const MapView = ({ hotels, selectedHotel, highlightedHotelId, onHotelClic
 
       map.addLayer(markerClusterRef.current);
 
+      map.on('locationfound', (e) => {
+        onUserLocationChange({ lat: e.latlng.lat, lng: e.latlng.lng });
+        if (userLocationMarkerRef.current) {
+          userLocationMarkerRef.current.setLatLng(e.latlng);
+        } else {
+          userLocationMarkerRef.current = L.marker(e.latlng, { icon: userLocationIcon }).addTo(map);
+        }
+        toast.success("Lokasi ditemukan!");
+      });
+
+      map.on('locationerror', (e) => {
+        toast.error("Gagal mendapatkan lokasi", {
+          description: "Pastikan Anda telah memberikan izin akses lokasi untuk situs ini.",
+        });
+      });
+      // --- Akhir Fitur Lokasi Pengguna ---
+
       mapRef.current = map;
       // mark map as ready so any pending selectedHotel can be handled
       setMapReady(true);
@@ -134,7 +182,7 @@ export const MapView = ({ hotels, selectedHotel, highlightedHotelId, onHotelClic
         mapRef.current = null;
       }
     };
-  }, []);
+  }, [onUserLocationChange]);
 
   useEffect(() => {
     if (!mapRef.current || !markerClusterRef.current) return;
@@ -150,14 +198,6 @@ export const MapView = ({ hotels, selectedHotel, highlightedHotelId, onHotelClic
         icon: getMarkerIcon(hotel.kategori, isHighlighted),
       });
 
-      const formatPrice = (price: number) => {
-        return new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-        }).format(price);
-      };
-
       marker.on("click", () => onHotelClick(hotel));
 
       markerClusterRef.current!.addLayer(marker);
@@ -171,7 +211,7 @@ export const MapView = ({ hotels, selectedHotel, highlightedHotelId, onHotelClic
         onHotelClick(hotel);
       }
     };
-  }, [hotels, highlightedHotelId, onHotelClick]);
+  }, [hotels, highlightedHotelId, onHotelClick, userLocation, mapReady]);
 
   useEffect(() => {
     if (!mapRef.current || !selectedHotel || !mapReady) return;
@@ -181,10 +221,6 @@ export const MapView = ({ hotels, selectedHotel, highlightedHotelId, onHotelClic
       duration: 0.5,
     });
 
-    const marker = markersRef.current.get(selectedHotel.id);
-    if (marker) {
-      marker.openPopup();
-    }
   }, [selectedHotel, mapReady]);
 
   useEffect(() => {
@@ -201,10 +237,25 @@ export const MapView = ({ hotels, selectedHotel, highlightedHotelId, onHotelClic
   }, [highlightedHotelId, hotels]);
 
   return (
-    <div
-      id="map"
-      className="w-full h-full rounded-xl overflow-hidden shadow-lg border border-border z-0"
-      style={{ minHeight: "500px" }}
-    />
+    <div className="w-full h-full relative">
+      <div
+        id="map"
+        className="w-full h-full rounded-xl overflow-hidden shadow-lg border border-border z-0"
+        style={{ minHeight: "500px" }}
+      />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="absolute bottom-4 left-4 z-[1000] h-10 w-10 rounded-full shadow-lg"
+            onClick={handleLocateUser}
+          >
+            <LocateFixed className="h-5 w-5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right"><p>Cari Lokasi Saya</p></TooltipContent>
+      </Tooltip>
+    </div>
   );
 };

@@ -1,20 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, SlidersHorizontal, Building, Wallet, Star, ChevronDown } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { SlidersHorizontal, Trash2, ArrowDownUp, Star, Building2, Wallet, Sparkles } from "lucide-react";
 import { FASILITAS_LIST } from "@/data/hotels";
 
 export interface Filters {
@@ -24,169 +10,159 @@ export interface Filters {
   rating: string;
 }
 
+export type DistanceSort = 'none' | 'nearest' | 'farthest';
+
 interface FilterPanelHorizontalProps {
   filters: Filters;
   onFiltersChange: (filters: Filters) => void;
   onClear: () => void;
+  distanceSort: DistanceSort;
+  onDistanceSortChange: (sort: DistanceSort) => void;
+  isLocationAvailable: boolean;
 }
 
 export const FilterPanelHorizontal = ({
   filters,
   onFiltersChange,
   onClear,
+  distanceSort,
+  onDistanceSortChange,
+  isLocationAvailable,
 }: FilterPanelHorizontalProps) => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showLeftShadow, setShowLeftShadow] = useState(false);
-  const [showRightShadow, setShowRightShadow] = useState(false);
-
-  const handleScroll = useCallback(() => {
-    const el = scrollContainerRef.current;
-    if (el) {
-      const isScrolledToStart = el.scrollLeft <= 0;
-      const isScrolledToEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
-      setShowLeftShadow(!isScrolledToStart);
-      setShowRightShadow(!isScrolledToEnd);
-    }
-  }, []);
-
-  useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (el) {
-      handleScroll(); // Initial check
-      el.addEventListener("scroll", handleScroll);
-      const resizeObserver = new ResizeObserver(handleScroll);
-      resizeObserver.observe(el);
-
-      return () => {
-        el.removeEventListener("scroll", handleScroll);
-        resizeObserver.unobserve(el);
-      };
-    }
-  }, [handleScroll]);
-
-  const handleFilterChange = (key: keyof Filters, value: unknown) => {
-    onFiltersChange({ ...filters, [key]: value });
+  const handleFilterChange = (type: keyof Filters, value: string) => {
+    onFiltersChange({ ...filters, [type]: value });
   };
 
   const handleFasilitasChange = (fasilitas: string) => {
     const newFasilitas = filters.fasilitas.includes(fasilitas)
       ? filters.fasilitas.filter((f) => f !== fasilitas)
       : [...filters.fasilitas, fasilitas];
-    handleFilterChange("fasilitas", newFasilitas);
+    onFiltersChange({ ...filters, fasilitas: newFasilitas });
   };
 
-  const activeFiltersCount =
-    (filters.kategori !== "all" ? 1 : 0) +
-    filters.fasilitas.length +
-    (filters.harga !== "all" ? 1 : 0) +
-    (filters.rating !== "all" ? 1 : 0);
+  const filterOptions = {
+    kategori: [
+      { value: "all", label: "Semua Bintang" },
+      { value: "HOTEL BINTANG 5", label: "Bintang 5" },
+      { value: "HOTEL BINTANG 4", label: "Bintang 4" },
+      { value: "HOTEL BINTANG 3", label: "Bintang 3" },
+      { value: "HOTEL BINTANG 2", label: "Bintang 2" },
+      { value: "HOTEL BINTANG 1", label: "Bintang 1" },
+    ],
+    harga: [
+      { value: "all", label: "Semua Harga" },
+      { value: "200000", label: "<= Rp 200.000" },
+      { value: "400000", label: "<= Rp 400.000" },
+      { value: "600000", label: "<= Rp 600.000" },
+      { value: "800000", label: "<= Rp 800.000" },
+      { value: "1000000", label: "<= Rp 1.000.000" },
+      { value: "over1000000", label: "> Rp 1.000.000" },
+    ],
+    rating: [
+      { value: "all", label: "Semua Rating" },
+      { value: "4.5", label: "4.5 +" },
+      { value: "4", label: "4.0 +" },
+      { value: "3.5", label: "3.5 +" },
+      { value: "3", label: "3.0 +" },
+    ],
+  };
+
+  const distanceSortOptions = {
+    none: "Urutkan Jarak",
+    nearest: "Jarak Terdekat",
+    farthest: "Jarak Terjauh",
+  };
+
+  const filterIcons: Record<string, React.ElementType> = {
+    kategori: Building2,
+    harga: Wallet,
+    rating: Star,
+  };
 
   return (
-    <div className="relative">
-      {/* Left Shadow */}
-      <div className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 transition-opacity duration-300 pointer-events-none ${showLeftShadow ? 'opacity-100' : 'opacity-0'}`} />
-      
-      <div
-        ref={scrollContainerRef}
-        className="flex items-center gap-2 overflow-x-auto pb-2 -mb-2 no-scrollbar"
-      >
-        {/* Kategori Filter */}
-        <Select
-          value={filters.kategori}
-          onValueChange={(value) => handleFilterChange("kategori", value)}
-        >
-          <SelectTrigger className="w-auto min-w-[200px] flex-shrink-0 transition-all hover:scale-105 hover:border-primary/50 active:scale-95">
-            <Building className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Kategori Hotel" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua Kategori</SelectItem>
-            <SelectItem value="HOTEL BINTANG 1">Hotel Bintang 1</SelectItem>
-            <SelectItem value="HOTEL BINTANG 2">Hotel Bintang 2</SelectItem>
-            <SelectItem value="HOTEL BINTANG 3">Hotel Bintang 3</SelectItem>
-            <SelectItem value="HOTEL BINTANG 4">Hotel Bintang 4</SelectItem>
-            <SelectItem value="HOTEL BINTANG 5">Hotel Bintang 5</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Harga Filter */}
-        <Select value={filters.harga} onValueChange={(value) => handleFilterChange("harga", value)}>
-          <SelectTrigger className="w-auto min-w-[200px] flex-shrink-0 transition-all hover:scale-105 hover:border-primary/50 active:scale-95">
-            <Wallet className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Rentang Harga" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua Harga</SelectItem>
-            <SelectItem value="200000">{"<"} Rp 200.000</SelectItem>
-            <SelectItem value="400000">{"<"} Rp 400.000</SelectItem>
-            <SelectItem value="600000">{"<"} Rp 600.000</SelectItem>
-            <SelectItem value="800000">{"<"} Rp 800.000</SelectItem>
-            <SelectItem value="1000000">{"<"} Rp 1.000.000</SelectItem>
-            <SelectItem value="1000001">{">"} Rp 1.000.000</SelectItem>           
-          </SelectContent>
-        </Select>
-
-        {/* Rating Filter */}
-        <Select value={filters.rating} onValueChange={(value) => handleFilterChange("rating", value)}>
-          <SelectTrigger className="w-auto min-w-[200px] flex-shrink-0 transition-all hover:scale-105 hover:border-primary/50 active:scale-95">
-            <Star className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Rating" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua Rating</SelectItem>
-            <SelectItem value="4.5">4.5+</SelectItem>
-            <SelectItem value="4">4.0+</SelectItem>
-            <SelectItem value="3.5">3.5+</SelectItem>
-            <SelectItem value="3">3.0+</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Fasilitas Filter */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-auto min-w-[200px] flex-shrink-0 flex items-center justify-between transition-all hover:scale-105 hover:border-primary/50 active:scale-95">
-              <SlidersHorizontal className="h-4 w-4 mr-2" />
-              <span className="flex-grow text-center">
-                Fasilitas {filters.fasilitas.length > 0 && `(${filters.fasilitas.length})`}
-              </span>
-              <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-64 p-0">
-            <ScrollArea className="h-72">
-              <div className="p-4 space-y-2">
-                {FASILITAS_LIST.map((fasilitas) => (
-                  <div key={fasilitas} className="flex items-center justify-between">
-                    <label htmlFor={fasilitas} className="text-sm font-medium leading-none pr-2 cursor-pointer">
-                      {fasilitas}
-                    </label>
-                    <Switch
-                      id={fasilitas}
-                      checked={filters.fasilitas.includes(fasilitas)}
-                      onCheckedChange={() => handleFasilitasChange(fasilitas)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </PopoverContent>
-        </Popover>
-
-        {/* Clear Button */}
-        {activeFiltersCount > 0 && (
-          <Button
-            variant="outline"
-            onClick={onClear}
-            className="flex-shrink-0 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-          >
-            <X className="h-4 w-4 mr-2" />
-            Reset ({activeFiltersCount})
-          </Button>
-        )}
+    <div className="bg-card p-3 rounded-xl border border-border shadow-sm flex flex-wrap items-center gap-3">
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground mr-2">
+        <SlidersHorizontal className="h-4 w-4" />
+        <span>Filter:</span>
       </div>
+      {Object.keys(filterOptions).map((key) => {
+        const Icon = filterIcons[key];
+        return (
+          <DropdownMenu key={key}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="text-xs h-8 flex items-center gap-2">
+                <Icon className="h-3 w-3" />
+                <span>{filterOptions[key as keyof typeof filterOptions].find(opt => opt.value === filters[key as keyof Filters])?.label}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuRadioGroup value={filters[key as keyof Filters]} onValueChange={(value) => handleFilterChange(key as keyof Filters, value)}>
+                {filterOptions[key as keyof typeof filterOptions].map(option => {
+                  if (key === 'rating' && option.value !== 'all') {
+                    return (
+                      <DropdownMenuRadioItem key={option.value} value={option.value} className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                        <span>{option.label}</span>
+                      </DropdownMenuRadioItem>
+                    );
+                  }
+                  return (
+                    <DropdownMenuRadioItem key={option.value} value={option.value}>
+                      {option.label}
+                    </DropdownMenuRadioItem>
+                  );
+                })}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      })}
 
-      {/* Right Shadow */}
-      <div className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 transition-opacity duration-300 pointer-events-none ${showRightShadow ? 'opacity-100' : 'opacity-0'}`} />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="text-xs h-8 flex items-center gap-2">
+            <Sparkles className="h-3 w-3" />
+            <span>Fasilitas {filters.fasilitas.length > 0 && `(${filters.fasilitas.length})`}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56 max-h-72 overflow-y-auto">
+          <DropdownMenuLabel>Pilih Fasilitas</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {FASILITAS_LIST.map((fasilitas) => (
+            <DropdownMenuCheckboxItem
+              key={fasilitas}
+              checked={filters.fasilitas.includes(fasilitas)}
+              onCheckedChange={() => handleFasilitasChange(fasilitas)}
+            >
+              {fasilitas}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {isLocationAvailable && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="text-xs h-8 border-primary/50 text-primary hover:text-primary">
+              <ArrowDownUp className="h-3 w-3 mr-2" />
+              {distanceSortOptions[distanceSort]}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuRadioGroup value={distanceSort} onValueChange={(value) => onDistanceSortChange(value as DistanceSort)}>
+              <DropdownMenuRadioItem value="none">Urutan Default</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="nearest">Jarak Terdekat</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="farthest">Jarak Terjauh</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+
+      <div className="flex-grow"></div>
+      <Button variant="ghost" size="sm" onClick={onClear} className="text-xs h-8 text-muted-foreground hover:text-destructive">
+        <Trash2 className="h-3 w-3 mr-1.5" />
+        Reset
+      </Button>
     </div>
   );
 };

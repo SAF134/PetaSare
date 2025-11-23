@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { SearchBar } from "@/components/SearchBar";
 import { RealTimeClock } from "@/components/RealTimeClock";
 import { toast } from "sonner";
+import { calculateDistance } from "@/lib/distance";
 
 const Hotels = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,6 +40,7 @@ const Hotels = () => {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const navigate = useNavigate();
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   // Animation variants for the title in the header
   const titleContainerVariants = {
@@ -132,14 +134,20 @@ const Hotels = () => {
           return false;
         }
         // Price filter
-        if (filters.harga !== "all") {
+        if (filters.harga !== "all" && filters.harga !== "over1000000") {
           const maxPrice = parseInt(filters.harga);
           if (hotel.harga > maxPrice) return false;
         }
+        if (filters.harga === "over1000000") {
+          if (hotel.harga <= 1000000) return false;
+        }
         // Rating filter
-        if (filters.rating !== "all") {
+        if (filters.rating !== "all" && filters.rating !== "under3") {
           const minRating = parseFloat(filters.rating);
           if (hotel.rating < minRating) return false;
+        }
+        if (filters.rating === "under3") {
+          if (hotel.rating >= 3.0) return false;
         }
         // Bookmarks filter
         if (showBookmarksOnly && !bookmarks.includes(hotel.id)) {
@@ -167,12 +175,23 @@ const Hotels = () => {
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
-      setDisplayedHotels(filteredHotels);
+      let hotelsToDisplay = [...filteredHotels];
+
+      // Jika lokasi pengguna tersedia, urutkan hotel berdasarkan jarak terdekat
+      if (userLocation) {
+        hotelsToDisplay.sort((a, b) => {
+          const distanceA = calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng);
+          const distanceB = calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng);
+          return distanceA - distanceB;
+        });
+      }
+
+      setDisplayedHotels(hotelsToDisplay);
       setIsLoading(false);
     }, 300); // Simulate loading for 300ms
 
     return () => clearTimeout(timer);
-  }, [filteredHotels]);
+  }, [filteredHotels, userLocation]);
 
   // Effect to scroll to map when a hotel is selected via "Go to Map"
   useEffect(() => {
@@ -334,7 +353,7 @@ const Hotels = () => {
             {/* Map View with Transition */}
             <div
               ref={mapContainerRef}
-              className={`relative col-span-1 sm:col-span-2 lg:col-span-3 rounded-xl overflow-hidden transition-all duration-500 ease-in-out ${
+              className={`relative z-10 col-span-1 sm:col-span-2 lg:col-span-3 rounded-xl overflow-hidden transition-all duration-500 ease-in-out ${
                 showMap
                   ? `${isMapExpanded ? "h-[80vh]" : "h-[400px]"} opacity-100 border border-border shadow-lg mb-6`
                   : "h-0 opacity-0 border-0 shadow-none mb-0"
@@ -345,6 +364,8 @@ const Hotels = () => {
                 selectedHotel={selectedHotel}
                 highlightedHotelId={highlightedHotelId}
                 onHotelClick={handleHotelClick}
+                userLocation={userLocation}
+                onUserLocationChange={setUserLocation}
                 onBoundsChange={handleBoundsChange} // Prop baru untuk mendapatkan batas peta
               />
               {showMap && (
@@ -353,7 +374,7 @@ const Hotels = () => {
                     <Button
                       size="icon"
                       variant="secondary"
-                      className="absolute bottom-4 right-4 z-10 h-10 w-10 rounded-full shadow-lg"
+                      className="absolute bottom-4 right-4 z-20 h-10 w-10 rounded-full shadow-lg"
                       onClick={() => setIsMapExpanded(!isMapExpanded)}
                     >
                       {isMapExpanded ? <Minimize className="h-5 w-5" /> : <Expand className="h-5 w-5" />}
@@ -382,6 +403,15 @@ const Hotels = () => {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
                     <HotelCard
+                      distance={
+                        userLocation
+                          ? calculateDistance(
+                              userLocation.lat,
+                              userLocation.lng,
+                              hotel.lat,
+                              hotel.lng
+                            )
+                          : undefined}
                       isHighlighted={highlightedHotelId === hotel.id}
                       hotel={hotel}
                       onViewDetails={handleViewDetails}

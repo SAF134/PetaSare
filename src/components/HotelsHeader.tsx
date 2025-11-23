@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Bookmark, MapPin, Home } from "lucide-react";
+import { Bookmark, MapPin, Home, Locate } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@/assets/PetaSarePolos.png";
 import { SearchBar } from "@/components/SearchBar";
+import { useLocation } from "@/contexts/LocationContext";
 
 interface HotelsHeaderProps {
   isScrolled: boolean;
@@ -33,6 +34,7 @@ export const HotelsHeader = ({
   totalHotelsCount,
 }: HotelsHeaderProps) => {
   const navigate = useNavigate();
+  const { requestUserLocation, userLocation } = useLocation();
 
   return (
     <header className="bg-surface-elevated/80 backdrop-blur-sm border-b border-border sticky top-0 z-40 shadow-md transition-all duration-300 py-4">
@@ -91,6 +93,20 @@ export const HotelsHeader = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent><p>{showMap ? "Sembunyikan peta" : "Tampilkan peta"}</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={userLocation ? "default" : "outline"}
+                  size="sm"
+                  onClick={requestUserLocation}
+                  className={`${userLocation ? "bg-primary" : "border-border"} transition-transform active:scale-95`}
+                >
+                  <Locate className="h-4 w-4 mr-2" />
+                  {userLocation ? "Lokasi Ditemukan" : "Lokasi Saya"}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent><p>Tampilkan hotel terdekat</p></TooltipContent>
             </Tooltip>
           </div>
         </div>

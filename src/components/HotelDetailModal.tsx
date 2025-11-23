@@ -32,6 +32,7 @@ import {
   ConciergeBell,
   LucideIcon,
   HelpCircle,
+  X,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -100,6 +101,16 @@ export const HotelDetailModal = ({ hotel, isOpen, onClose }: HotelDetailModalPro
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl p-0 gap-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 transition-all duration-300">
+        {/* Tombol Close Modern */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="absolute top-3 right-3 z-50 h-9 w-9 rounded-full bg-black/30 text-white hover:bg-black/50 hover:text-white backdrop-blur-sm transition-all"
+          aria-label="Tutup"
+        >
+          <X className="h-5 w-5" />
+        </Button>
         <ScrollArea className="max-h-[90vh]">
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Left Column: Image */}
