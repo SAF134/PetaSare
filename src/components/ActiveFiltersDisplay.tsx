@@ -34,6 +34,15 @@ const RATING_MAP: { [key: string]: string } = {
   "3": "3.0+",
 };
 
+const JARAK_MAP: { [key: string]: string } = {
+  "2": "<= 2 km",
+  "4": "<= 4 km",
+  "6": "<= 6 km",
+  "8": "<= 8 km",
+  "10": "<= 10 km",
+  "over10": "> 10 km",
+};
+
 const FilterTag = ({ label, onRemove }: { label: string; onRemove: () => void }) => (
   <motion.div
     layout
@@ -81,6 +90,12 @@ export const ActiveFiltersDisplay = ({ filters, searchQuery, showBookmarksOnly, 
   if (filters.rating !== 'all') {
     activeFilters.push(
       <FilterTag key="rating" label={`Rating: ${RATING_MAP[filters.rating] || filters.rating}`} onRemove={() => onRemoveFilter('rating')} />
+    );
+  }
+
+  if (filters.jarak !== 'all') {
+    activeFilters.push(
+      <FilterTag key="jarak" label={`Jarak: ${JARAK_MAP[filters.jarak] || filters.jarak}`} onRemove={() => onRemoveFilter('jarak')} />
     );
   }
 
