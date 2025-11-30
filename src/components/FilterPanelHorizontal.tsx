@@ -1,3 +1,4 @@
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { SlidersHorizontal, Trash2, ArrowDownUp, Star, Building2, Wallet, Sparkles } from "lucide-react";
@@ -29,6 +30,7 @@ export const FilterPanelHorizontal = ({
   onDistanceSortChange,
   isLocationAvailable,
 }: FilterPanelHorizontalProps) => {
+  const isMobile = useIsMobile();
   const handleFilterChange = (type: keyof Filters, value: string) => {
     onFiltersChange({ ...filters, [type]: value });
   };
@@ -80,8 +82,8 @@ export const FilterPanelHorizontal = ({
   };
 
   return (
-    <div className="bg-card p-3 rounded-xl border border-border shadow-sm flex flex-wrap items-center gap-3">
-      <div className="flex items-center gap-2 text-sm font-semibold text-foreground mr-2">
+    <div className="bg-card p-3 rounded-xl border border-border shadow-sm flex items-center gap-3 w-full max-w-full overflow-x-auto md:flex-wrap md:overflow-x-visible">
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground mr-2 flex-shrink-0">
         <SlidersHorizontal className="h-4 w-4" />
         <span>Filter:</span>
       </div>
