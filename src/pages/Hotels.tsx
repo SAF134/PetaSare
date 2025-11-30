@@ -26,7 +26,7 @@ const Hotels = () => {
     fasilitas: [],
     harga: "all",
     rating: "all",
-    jarak: "closest", // Default to "Jarak Terdekat"
+    jarak: "all", // New distance filter state
   });
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -121,53 +121,61 @@ const Hotels = () => {
   // Memoized filtering logic
   const filteredHotels = useMemo(
     () =>
-      hotels.filter((hotel) => {
-        // Search filter
-        if (searchQuery && !hotel.nama.toLowerCase().includes(searchQuery.toLowerCase())) {
-          return false;
-        }
-        // Category filter
-        if (filters.kategori !== "all" && hotel.kategori !== filters.kategori) {
-          return false;
-        }
-        // Facilities filter
-        if (filters.fasilitas.length > 0 && !filters.fasilitas.every((f) => hotel.fasilitas.includes(f))) {
-          return false;
-        }
-        // Price filter
-        if (filters.harga !== "all" && filters.harga !== "over1000000") {
-          const maxPrice = parseInt(filters.harga);
-          if (hotel.harga > maxPrice) return false;
-        }
-        if (filters.harga === "over1000000") {
-          if (hotel.harga <= 1000000) return false;
-        }
-        // Rating filter
-        if (filters.rating !== "all" && filters.rating !== "under3") {
-          const minRating = parseFloat(filters.rating);
-          if (hotel.rating < minRating) return false;
-        }
-        if (filters.rating === "under3") {
-          if (hotel.rating >= 3.0) return false;
-        }
-        // Distance filter
-        if (userLocation && filters.jarak !== "closest") {
-          const distance = calculateDistance(userLocation.lat, userLocation.lng, hotel.latitude, hotel.longitude);
-          const maxDistance = parseFloat(filters.jarak); // Will be NaN for 'over10'
-
-          if (filters.jarak === "over10") {
-            if (distance <= 10) return false;
-          } else if (!isNaN(maxDistance)) {
-            if (distance > maxDistance) return false;
+      hotels
+        .filter((hotel) => {
+          // Search filter
+          if (searchQuery && !hotel.nama.toLowerCase().includes(searchQuery.toLowerCase())) {
+            return false;
           }
-        }
-        // Bookmarks filter
-        if (showBookmarksOnly && !bookmarks.includes(hotel.id)) {
-          return false;
-        }
-        return true;
-      }),
-    [searchQuery, filters, showBookmarksOnly, bookmarks, userLocation]
+          // Category filter
+          if (filters.kategori !== "all" && hotel.kategori !== filters.kategori) {
+            return false;
+          }
+          // Facilities filter
+          if (filters.fasilitas.length > 0 && !filters.fasilitas.every((f) => hotel.fasilitas.includes(f))) {
+            return false;
+          }
+          // Price filter
+          if (filters.harga !== "all" && filters.harga !== "over1000000") {
+            const maxPrice = parseInt(filters.harga);
+            if (hotel.harga > maxPrice) return false;
+          }
+          if (filters.harga === "over1000000") {
+            if (hotel.harga <= 1000000) return false;
+          }
+          // Rating filter
+          if (filters.rating !== "all" && filters.rating !== "under3") {
+            const minRating = parseFloat(filters.rating);
+            if (hotel.rating < minRating) return false;
+          }
+          if (filters.rating === "under3") {
+            if (hotel.rating >= 3.0) return false;
+          }
+          // Bookmarks filter
+          if (showBookmarksOnly && !bookmarks.includes(hotel.id)) {
+            return false;
+          }
+          // Distance filter (only applied if userLocation is available)
+          if (filters.jarak !== "all" && userLocation) {
+            const distance = calculateDistance(
+              userLocation.lat,
+              userLocation.lng,
+              hotel.latitude,
+              hotel.longitude
+            );
+            const distanceInKm = distance; // calculateDistance already returns in km
+
+            if (filters.jarak === "2" && distanceInKm > 2) return false;
+            if (filters.jarak === "4" && distanceInKm > 4) return false;
+            if (filters.jarak === "6" && distanceInKm > 6) return false;
+            if (filters.jarak === "8" && distanceInKm > 8) return false;
+            if (filters.jarak === "10" && distanceInKm > 10) return false;
+            if (filters.jarak === "over10" && distanceInKm <= 10) return false;
+          }
+
+          return true;
+        }),
+    [searchQuery, filters, showBookmarksOnly, bookmarks, userLocation] // Added userLocation to dependencies
   );
 
   // Memoized hotels visible on map
@@ -183,6 +191,28 @@ const Hotels = () => {
   // Handler untuk memperbarui batas peta dari komponen MapView
   const handleBoundsChange = (bounds: LatLngBounds) => setMapBounds(bounds);
 
+  // Effect to handle loading state and update displayed hotels
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      let hotelsToDisplay = [...filteredHotels];
+
+      // Jika lokasi pengguna tersedia, urutkan hotel berdasarkan jarak terdekat
+      if (userLocation) {
+        hotelsToDisplay.sort((a, b) => {
+          const distanceA = calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng);
+          const distanceB = calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng);
+          return distanceA - distanceB;
+        });
+      }
+
+      setDisplayedHotels(hotelsToDisplay);
+      setIsLoading(false);
+    }, 300); // Simulate loading for 300ms
+
+    return () => clearTimeout(timer);
+  }, [filteredHotels, userLocation]);
+
   // Effect to scroll to map when a hotel is selected via "Go to Map"
   useEffect(() => {
     // Only scroll if the map is visible and a hotel has been selected
@@ -195,35 +225,13 @@ const Hotels = () => {
     }
   }, [selectedHotel, showMap]);
 
-  // Effect to handle loading state and update displayed hotels
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      const hotelsToDisplay = [...filteredHotels];
-
-      // Jika lokasi pengguna tersedia dan filter jarak adalah "closest", urutkan hotel berdasarkan jarak terdekat
-      if (userLocation && filters.jarak === "closest") {
-        hotelsToDisplay.sort((a, b) => {
-          const distanceA = calculateDistance(userLocation.lat, userLocation.lng, a.latitude, a.longitude);
-          const distanceB = calculateDistance(userLocation.lat, userLocation.lng, b.latitude, b.longitude);
-          return distanceA - distanceB;
-        });
-      }
-
-      setDisplayedHotels(hotelsToDisplay);
-      setIsLoading(false);
-    }, 300); // Simulate loading for 300ms
-
-    return () => clearTimeout(timer);
-  }, [filteredHotels, userLocation, filters.jarak]);
-
   const handleClearFilters = () => {
     setFilters({
       kategori: "all",
       fasilitas: [],
       harga: "all",
       rating: "all",
-      jarak: "closest",
+      jarak: "all", // Reset jarak filter
     });
     setSearchQuery("");
     setShowBookmarksOnly(false);
@@ -238,6 +246,11 @@ const Hotels = () => {
       setFilters((prev) => ({
         ...prev,
         fasilitas: prev.fasilitas.filter(f => f !== value)
+      }));
+    } else if (type === 'jarak') { // Handle distance filter
+      setFilters(prev => ({
+        ...prev,
+        jarak: 'all'
       }));
     } else if (type !== 'fasilitas') {
       setFilters(prev => ({
@@ -347,7 +360,9 @@ const Hotels = () => {
           filters={filters}
           onFiltersChange={setFilters}
           onClear={handleClearFilters}
-          isLocationAvailable={userLocation !== null}
+          distanceFilter={filters.jarak}
+          onDistanceFilterChange={(value) => setFilters((prev) => ({ ...prev, jarak: value }))}
+          isLocationAvailable={!!userLocation}
         />
       </div>
 
