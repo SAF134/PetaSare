@@ -1,4 +1,3 @@
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { SlidersHorizontal, Trash2, ArrowDownUp, Star, Building2, Wallet, Sparkles, MapPin } from "lucide-react";
@@ -9,19 +8,23 @@ export interface Filters {
   fasilitas: string[];
   harga: string;
   rating: string;
-  jarak: string; // New distance filter
+  jarak: string;
 }
 
-export type DistanceSort = 'none' | 'nearest' | 'farthest';
+const distanceFilterOptions = [
+  { value: "closest", label: "Jarak Terdekat" },
+  { value: "2", label: "<= 2 km" },
+  { value: "4", label: "<= 4 km" },
+  { value: "6", label: "<= 6 km" },
+  { value: "8", label: "<= 8 km" },
+  { value: "10", label: "<= 10 km" },
+  { value: "over10", label: "> 10 km" },
+];
 
 interface FilterPanelHorizontalProps {
   filters: Filters;
   onFiltersChange: (filters: Filters) => void;
   onClear: () => void;
-  distanceSort: DistanceSort;
-  onDistanceSortChange: (sort: DistanceSort) => void;
-  distanceFilter: string; // New prop for distance filter
-  onDistanceFilterChange: (filter: string) => void; // New handler for distance filter
   isLocationAvailable: boolean;
 }
 
@@ -29,11 +32,8 @@ export const FilterPanelHorizontal = ({
   filters,
   onFiltersChange,
   onClear,
-  distanceSort,
-  onDistanceSortChange,
   isLocationAvailable,
 }: FilterPanelHorizontalProps) => {
-  const isMobile = useIsMobile();
   const handleFilterChange = (type: keyof Filters, value: string) => {
     onFiltersChange({ ...filters, [type]: value });
   };
@@ -85,8 +85,8 @@ export const FilterPanelHorizontal = ({
   };
 
   return (
-    <div className="bg-card p-3 rounded-xl border border-border shadow-sm flex items-center gap-3 w-full max-w-full overflow-x-auto md:flex-wrap md:overflow-x-visible">
-      <div className="flex items-center gap-2 text-sm font-semibold text-foreground mr-2 flex-shrink-0">
+    <div className="bg-card p-3 rounded-xl border border-border shadow-sm flex flex-wrap items-center gap-3">
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground mr-2">
         <SlidersHorizontal className="h-4 w-4" />
         <span>Filter:</span>
       </div>
@@ -151,37 +151,21 @@ export const FilterPanelHorizontal = ({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="text-xs h-8 flex items-center gap-2">
                 <MapPin className="h-3 w-3" />
-                <span>Jarak {filters.jarak !== "all" && `(${filters.jarak} km)`}</span>
+                <span>{distanceFilterOptions.find(opt => opt.value === filters.jarak)?.label}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuRadioGroup value={filters.jarak} onValueChange={(value) => onFiltersChange({ ...filters, jarak: value })}>
-                <DropdownMenuRadioItem value="all">Semua Jarak</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="2">{"<= 2 km"}</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="4">{"<= 4 km"}</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="6">{"<= 6 km"}</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="8">{"<= 8 km"}</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="10">{"<= 10 km"}</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="over10">{"> 10 km"}</DropdownMenuRadioItem>
+              <DropdownMenuRadioGroup value={filters.jarak} onValueChange={(value) => handleFilterChange('jarak', value)}>
+                {distanceFilterOptions.map(option => (
+                  <DropdownMenuRadioItem key={option.value} value={option.value}>
+                    {option.label}
+                  </DropdownMenuRadioItem>
+                ))}
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="text-xs h-8 border-primary/50 text-primary hover:text-primary">
-                <ArrowDownUp className="h-3 w-3 mr-2" />
-                {distanceSortOptions[distanceSort]}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuRadioGroup value={distanceSort} onValueChange={(value) => onDistanceSortChange(value as DistanceSort)}>
-                <DropdownMenuRadioItem value="none">Urutan Default</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="nearest">Jarak Terdekat</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="farthest">Jarak Terjauh</DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+
         </>
       )}
 
