@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { toast } from "sonner";
 
 interface LocationContextType {
   userLocation: { lat: number; lng: number } | null;
@@ -18,15 +19,20 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
+          toast.success("Lokasi ditemukan!");
         },
         (error) => {
           console.error("Error getting user location:", error);
-          // Optionally, handle errors (e.g., show a notification to the user)
+          toast.error("Gagal mendapatkan lokasi", {
+            description: "Pastikan Anda telah memberikan izin akses lokasi untuk situs ini.",
+          });
         }
       );
     } else {
       console.error("Geolocation is not supported by this browser.");
-      // Optionally, handle lack of support
+      toast.error("Geolocation tidak didukung", {
+        description: "Browser Anda tidak mendukung fitur lokasi.",
+      });
     }
   };
 

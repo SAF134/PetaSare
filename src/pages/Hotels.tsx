@@ -18,6 +18,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { RealTimeClock } from "@/components/RealTimeClock";
 import { toast } from "sonner";
 import { calculateDistance } from "@/lib/distance";
+import { useLocation } from "@/contexts/LocationContext";
 
 const Hotels = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,6 +27,7 @@ const Hotels = () => {
     fasilitas: [],
     harga: "all",
     rating: "all",
+    distanceRange: "all",
   });
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -40,7 +42,7 @@ const Hotels = () => {
   const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const navigate = useNavigate();
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const { userLocation, requestUserLocation } = useLocation();
 
   // Animation variants for the title in the header
   const titleContainerVariants = {
@@ -153,6 +155,35 @@ const Hotels = () => {
         if (showBookmarksOnly && !bookmarks.includes(hotel.id)) {
           return false;
         }
+        // Distance filter
+        if (filters.distanceRange !== "all") {
+          if (!userLocation) {
+            return false; // If distance filter is active but no user location, hide hotel
+          }
+          const distance = calculateDistance(userLocation.lat, userLocation.lng, hotel.lat, hotel.lng);
+          switch (filters.distanceRange) {
+            case "lt2km":
+              if (distance > 2) return false;
+              break;
+            case "lt4km":
+              if (distance > 4) return false;
+              break;
+            case "lt6km":
+              if (distance > 6) return false;
+              break;
+            case "lt8km":
+              if (distance > 8) return false;
+              break;
+            case "lt10km":
+              if (distance > 10) return false;
+              break;
+            case "gt10km":
+              if (distance <= 10) return false;
+              break;
+            default:
+              break;
+          }
+        }
         return true;
       }),
     [searchQuery, filters, showBookmarksOnly, bookmarks]
@@ -211,6 +242,7 @@ const Hotels = () => {
       fasilitas: [],
       harga: "all",
       rating: "all",
+      distanceRange: "all",
     });
     setSearchQuery("");
     setShowBookmarksOnly(false);
@@ -330,23 +362,23 @@ const Hotels = () => {
 
       {/* Horizontal Filters */}
       <div className="container mx-auto px-4 pt-4">
-        <FilterPanelHorizontal
-          filters={filters}
-          onFiltersChange={setFilters}
-          onClear={handleClearFilters}
-        />
-      </div>
+                  <FilterPanelHorizontal
+                    filters={filters}
+                    onFiltersChange={setFilters}
+                    onClear={handleClearFilters}
+                    isLocationAvailable={!!userLocation}
+                  />      </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 pt-2 pb-6">
         {/* Active Filters Display */}
-        <ActiveFiltersDisplay
-          filters={filters}
-          searchQuery={searchQuery}
-          showBookmarksOnly={showBookmarksOnly}
-          onRemoveFilter={handleRemoveFilter}
-        />
-
+                  <ActiveFiltersDisplay
+                    filters={filters}
+                    searchQuery={searchQuery}
+                    showBookmarksOnly={showBookmarksOnly}
+                    onRemoveFilter={handleRemoveFilter}
+                    isLocationAvailable={!!userLocation}
+                  />
         <div className="w-full">
           {/* Hotel List and Map */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -360,13 +392,13 @@ const Hotels = () => {
               }`}
             >
               <MapView
-                hotels={hotelsOnMap} // Gunakan hotelsOnMap untuk performa yang lebih baik
+                hotels={hotelsOnMap}
                 selectedHotel={selectedHotel}
                 highlightedHotelId={highlightedHotelId}
                 onHotelClick={handleHotelClick}
                 userLocation={userLocation}
-                onUserLocationChange={setUserLocation}
-                onBoundsChange={handleBoundsChange} // Prop baru untuk mendapatkan batas peta
+                onLocateUserTrigger={requestUserLocation}
+                onBoundsChange={handleBoundsChange}
               />
               {showMap && (
                 <Tooltip>

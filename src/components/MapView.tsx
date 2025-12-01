@@ -19,7 +19,7 @@ interface MapViewProps {
   highlightedHotelId: number | null;
   onHotelClick: (hotel: Hotel) => void;
   userLocation?: { lat: number; lng: number } | null;
-  onUserLocationChange: (location: { lat: number; lng: number }) => void;
+  onLocateUserTrigger: () => void;
   onBoundsChange: (bounds: L.LatLngBounds) => void;
 }
 
@@ -90,7 +90,7 @@ export const MapView = ({
   highlightedHotelId, 
   onHotelClick, 
   userLocation,
-  onUserLocationChange,
+  onLocateUserTrigger,
   onBoundsChange
 }: MapViewProps) => {
   const mapRef = useRef<L.Map | null>(null);
@@ -100,10 +100,7 @@ export const MapView = ({
   const userLocationMarkerRef = useRef<L.Marker | null>(null);
 
   const handleLocateUser = () => {
-    if (!mapRef.current) return;
-    const map = mapRef.current;
-
-    map.locate({ setView: true, maxZoom: 16, enableHighAccuracy: true });
+    onLocateUserTrigger();
   };
   
   useEffect(() => {
@@ -153,21 +150,6 @@ export const MapView = ({
 
       map.addLayer(markerClusterRef.current);
 
-      map.on('locationfound', (e) => {
-        onUserLocationChange({ lat: e.latlng.lat, lng: e.latlng.lng });
-        if (userLocationMarkerRef.current) {
-          userLocationMarkerRef.current.setLatLng(e.latlng);
-        } else {
-          userLocationMarkerRef.current = L.marker(e.latlng, { icon: userLocationIcon }).addTo(map);
-        }
-        toast.success("Lokasi ditemukan!");
-      });
-
-      map.on('locationerror', (e) => {
-        toast.error("Gagal mendapatkan lokasi", {
-          description: "Pastikan Anda telah memberikan izin akses lokasi untuk situs ini.",
-        });
-      });
       // --- Akhir Fitur Lokasi Pengguna ---
 
       mapRef.current = map;
@@ -182,7 +164,26 @@ export const MapView = ({
         mapRef.current = null;
       }
     };
-  }, [onUserLocationChange]);
+  }, []);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (userLocation) {
+      const latlng = L.latLng(userLocation.lat, userLocation.lng);
+      if (userLocationMarkerRef.current) {
+        userLocationMarkerRef.current.setLatLng(latlng);
+      } else {
+        userLocationMarkerRef.current = L.marker(latlng, { icon: userLocationIcon }).addTo(mapRef.current);
+      }
+      mapRef.current.setView(latlng, 16); // Set view to user location when it's available
+    } else {
+      if (userLocationMarkerRef.current) {
+        mapRef.current.removeLayer(userLocationMarkerRef.current);
+        userLocationMarkerRef.current = null;
+      }
+    }
+  }, [userLocation]);
 
   useEffect(() => {
     if (!mapRef.current || !markerClusterRef.current) return;

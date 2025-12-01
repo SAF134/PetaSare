@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
-import { Filters } from "./FilterPanelHorizontal";
+import { Filters, DistanceRange } from "./FilterPanelHorizontal"; // Import DistanceRange
 import { AnimatePresence, motion } from "framer-motion";
 
 interface ActiveFiltersDisplayProps {
@@ -8,6 +8,7 @@ interface ActiveFiltersDisplayProps {
   searchQuery: string;
   showBookmarksOnly: boolean;
   onRemoveFilter: (type: keyof Filters | 'search' | 'bookmarks', value?: string) => void;
+  isLocationAvailable: boolean; // Add this prop
 }
 
 const KATEGORI_MAP: { [key: string]: string } = {
@@ -34,6 +35,16 @@ const RATING_MAP: { [key: string]: string } = {
   "3": "3.0+",
 };
 
+const DISTANCE_MAP: { [key in DistanceRange]: string } = {
+  "all": "Jarak terdekat",
+  "lt2km": "<= 2 km",
+  "lt4km": "<= 4 km",
+  "lt6km": "<= 6 km",
+  "lt8km": "<= 8 km",
+  "lt10km": "<= 10 km",
+  "gt10km": "> 10 km",
+};
+
 const FilterTag = ({ label, onRemove }: { label: string; onRemove: () => void }) => (
   <motion.div
     layout
@@ -51,7 +62,7 @@ const FilterTag = ({ label, onRemove }: { label: string; onRemove: () => void })
   </motion.div>
 );
 
-export const ActiveFiltersDisplay = ({ filters, searchQuery, showBookmarksOnly, onRemoveFilter }: ActiveFiltersDisplayProps) => {
+export const ActiveFiltersDisplay = ({ filters, searchQuery, showBookmarksOnly, onRemoveFilter, isLocationAvailable }: ActiveFiltersDisplayProps) => {
   const activeFilters = [];
 
   if (searchQuery) {
@@ -89,6 +100,13 @@ export const ActiveFiltersDisplay = ({ filters, searchQuery, showBookmarksOnly, 
       <FilterTag key={`fasilitas-${f}`} label={f} onRemove={() => onRemoveFilter('fasilitas', f)} />
     );
   });
+
+  // Add distance filter display logic
+  if (isLocationAvailable && filters.distanceRange && filters.distanceRange !== 'all') {
+    activeFilters.push(
+      <FilterTag key="distance" label={`Jarak: ${DISTANCE_MAP[filters.distanceRange]}`} onRemove={() => onRemoveFilter('distanceRange')} />
+    );
+  }
 
   if (activeFilters.length === 0) return null;
 
