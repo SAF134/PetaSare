@@ -323,10 +323,10 @@ const Hotels = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2 w-full md:w-auto">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant={showBookmarksOnly ? "default" : "outline"} size="sm" onClick={() => setShowBookmarksOnly(!showBookmarksOnly)} className={`${showBookmarksOnly ? "bg-primary" : "border-border"} mr-2 transition-transform active:scale-95`}>
+                <Button variant={showBookmarksOnly ? "default" : "outline"} size="sm" onClick={() => setShowBookmarksOnly(!showBookmarksOnly)} className={`${showBookmarksOnly ? "bg-primary" : "border-border"} transition-transform active:scale-95`}>
                   <Bookmark className={`h-4 w-4 mr-2 ${showBookmarksOnly ? "fill-current" : ""}`} />
                   Bookmark ({bookmarks.length})
                 </Button>
@@ -335,7 +335,7 @@ const Hotels = () => {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant={showMap ? "default" : "outline"} size="sm" onClick={() => setShowMap(!showMap)} className={`${showMap ? "bg-primary" : "border-border"} mr-2 transition-transform active:scale-95`}>
+                <Button variant={showMap ? "default" : "outline"} size="sm" onClick={() => setShowMap(!showMap)} className={`${showMap ? "bg-primary" : "border-border"} transition-transform active:scale-95`}>
                   <MapPin className="h-4 w-4 mr-2" />
                   {showMap ? "Sembunyikan Peta" : "Tampilkan Peta"}
                 </Button>
