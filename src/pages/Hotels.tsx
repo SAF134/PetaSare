@@ -412,7 +412,7 @@ const Hotels = () => {
                       {isMapExpanded ? <Minimize className="h-5 w-5" /> : <Expand className="h-5 w-5" />}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent><p>{isMapExpanded ? "Perkecil Peta" : "Perluas Peta"}</p></TooltipContent>
+                  <TooltipContent side="left"><p>{isMapExpanded ? "Perkecil Peta" : "Perluas Peta"}</p></TooltipContent>
                 </Tooltip>
               )}
             </div>

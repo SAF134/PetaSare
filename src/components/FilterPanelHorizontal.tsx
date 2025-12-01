@@ -86,86 +86,88 @@ export const FilterPanelHorizontal = ({
         <SlidersHorizontal className="h-4 w-4" />
         <span>Filter:</span>
       </div>
-      {Object.keys(filterOptions).map((key) => {
-        const Icon = filterIcons[key];
-        return (
-          <DropdownMenu key={key}>
+      <div className="flex flex-nowrap items-center gap-3 overflow-x-auto pb-2 -mb-2">
+        {Object.keys(filterOptions).map((key) => {
+          const Icon = filterIcons[key];
+          return (
+            <DropdownMenu key={key}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="text-xs h-8 flex items-center gap-2 flex-shrink-0">
+                  <Icon className="h-3 w-3" />
+                  <span>{filterOptions[key as keyof typeof filterOptions].find(opt => opt.value === filters[key as keyof Filters])?.label}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuRadioGroup value={filters[key as keyof Filters]} onValueChange={(value) => handleFilterChange(key as keyof Filters, value)}>
+                  {filterOptions[key as keyof typeof filterOptions].map(option => {
+                    if (key === 'rating' && option.value !== 'all') {
+                      return (
+                        <DropdownMenuRadioItem key={option.value} value={option.value} className="flex items-center gap-2">
+                          <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                          <span>{option.label}</span>
+                        </DropdownMenuRadioItem>
+                      );
+                    }
+                    return (
+                      <DropdownMenuRadioItem key={option.value} value={option.value}>
+                        {option.label}
+                      </DropdownMenuRadioItem>
+                    );
+                  })}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        })}
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="text-xs h-8 flex items-center gap-2 flex-shrink-0">
+              <Sparkles className="h-3 w-3" />
+              <span>Fasilitas {filters.fasilitas.length > 0 && `(${filters.fasilitas.length})`}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56 max-h-72 overflow-y-auto">
+            <DropdownMenuLabel>Pilih Fasilitas</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {FASILITAS_LIST.map((fasilitas) => (
+              <DropdownMenuCheckboxItem
+                key={fasilitas}
+                checked={filters.fasilitas.includes(fasilitas)}
+                onCheckedChange={() => handleFasilitasChange(fasilitas)}
+              >
+                {fasilitas}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {isLocationAvailable && (
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="text-xs h-8 flex items-center gap-2">
-                <Icon className="h-3 w-3" />
-                <span>{filterOptions[key as keyof typeof filterOptions].find(opt => opt.value === filters[key as keyof Filters])?.label}</span>
+              <Button variant="outline" className="text-xs h-8 flex items-center gap-2 flex-shrink-0">
+                <MapPin className="h-3 w-3" />
+                <span>{distanceFilterOptions.find(opt => opt.value === filters.distanceRange)?.label || "Jarak"}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuRadioGroup value={filters[key as keyof Filters]} onValueChange={(value) => handleFilterChange(key as keyof Filters, value)}>
-                {filterOptions[key as keyof typeof filterOptions].map(option => {
-                  if (key === 'rating' && option.value !== 'all') {
-                    return (
-                      <DropdownMenuRadioItem key={option.value} value={option.value} className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                        <span>{option.label}</span>
-                      </DropdownMenuRadioItem>
-                    );
-                  }
-                  return (
-                    <DropdownMenuRadioItem key={option.value} value={option.value}>
-                      {option.label}
-                    </DropdownMenuRadioItem>
-                  );
-                })}
+              <DropdownMenuRadioGroup
+                value={filters.distanceRange || "all"}
+                onValueChange={(value) => handleFilterChange("distanceRange", value as DistanceRange)}
+              >
+                {distanceFilterOptions.map((option) => (
+                  <DropdownMenuRadioItem key={option.value} value={option.value}>
+                    {option.label}
+                  </DropdownMenuRadioItem>
+                ))}
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
-        );
-      })}
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="text-xs h-8 flex items-center gap-2">
-            <Sparkles className="h-3 w-3" />
-            <span>Fasilitas {filters.fasilitas.length > 0 && `(${filters.fasilitas.length})`}</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 max-h-72 overflow-y-auto">
-          <DropdownMenuLabel>Pilih Fasilitas</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {FASILITAS_LIST.map((fasilitas) => (
-            <DropdownMenuCheckboxItem
-              key={fasilitas}
-              checked={filters.fasilitas.includes(fasilitas)}
-              onCheckedChange={() => handleFasilitasChange(fasilitas)}
-            >
-              {fasilitas}
-            </DropdownMenuCheckboxItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {isLocationAvailable && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="text-xs h-8 flex items-center gap-2">
-              <MapPin className="h-3 w-3" />
-              <span>{distanceFilterOptions.find(opt => opt.value === filters.distanceRange)?.label || "Jarak"}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuRadioGroup
-              value={filters.distanceRange || "all"}
-              onValueChange={(value) => handleFilterChange("distanceRange", value as DistanceRange)}
-            >
-              {distanceFilterOptions.map((option) => (
-                <DropdownMenuRadioItem key={option.value} value={option.value}>
-                  {option.label}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+        )}
+      </div>
 
       <div className="flex-grow"></div>
-      <Button variant="ghost" size="sm" onClick={onClear} className="text-xs h-8 text-muted-foreground hover:text-destructive">
+      <Button variant="ghost" size="sm" onClick={onClear} className="text-xs h-8 text-muted-foreground hover:text-destructive flex-shrink-0">
         <Trash2 className="h-3 w-3 mr-1.5" />
         Reset
       </Button>
