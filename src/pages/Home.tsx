@@ -10,6 +10,9 @@ import { Footer } from "@/components/Footer";
 import { useTheme } from "next-themes";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { HotelChart } from "@/components/HotelChart";
+import { PriceChart } from "@/components/PriceChart";
+import { RatingChart } from "@/components/RatingChart";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -322,6 +325,23 @@ const Home = () => {
               ))}
             </motion.div>
           </motion.div>
+            {/* Chart Section */}
+            <motion.div
+                className="pt-12 w-full"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+            >
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
+                Visualisasi Data Hotel
+                </h2>
+                <motion.div className="flex flex-col gap-8" variants={itemVariants}>
+                    <HotelChart />
+                    <PriceChart />
+                    <RatingChart />
+                </motion.div>
+            </motion.div>
           </div>
         </div>
       </main>

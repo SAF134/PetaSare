@@ -65,7 +65,7 @@ export const FilterPanelHorizontal = ({
   };
 
   const distanceFilterOptions = [
-    { value: "all", label: "Jarak terdekat" },
+    { value: "all", label: "Jarak Terdekat" },
     { value: "lt2km", label: "<= 2 km" },
     { value: "lt4km", label: "<= 4 km" },
     { value: "lt6km", label: "<= 6 km" },

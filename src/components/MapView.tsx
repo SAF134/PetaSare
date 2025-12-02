@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -12,6 +13,7 @@ import { LocateFixed } from "lucide-react";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { toast } from "sonner";
+import { DistanceRange } from "./FilterPanelHorizontal";
 
 interface MapViewProps {
   hotels: Hotel[];
@@ -21,6 +23,7 @@ interface MapViewProps {
   userLocation?: { lat: number; lng: number } | null;
   onLocateUserTrigger: () => void;
   onBoundsChange: (bounds: L.LatLngBounds) => void;
+  distanceRange?: DistanceRange;
 }
 
 // Custom marker icons based on category
@@ -91,16 +94,28 @@ export const MapView = ({
   onHotelClick, 
   userLocation,
   onLocateUserTrigger,
-  onBoundsChange
+  onBoundsChange,
+  distanceRange
 }: MapViewProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const markersRef = useRef<Map<number, L.Marker>>(new Map());
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const userLocationMarkerRef = useRef<L.Marker | null>(null);
+  const radiusCircleRef = useRef<L.Circle | null>(null);
 
   const handleLocateUser = () => {
-    onLocateUserTrigger();
+    if (userLocation && mapRef.current) {
+      mapRef.current.setView([userLocation.lat, userLocation.lng], 16, {
+        animate: true,
+        duration: 0.8,
+      });
+      toast.info("Lokasi ditemukan", {
+        description: "Peta telah dipusatkan ke lokasi Anda saat ini.",
+      });
+    } else {
+      onLocateUserTrigger();
+    }
   };
   
   useEffect(() => {
@@ -166,6 +181,46 @@ export const MapView = ({
     };
   }, []);
 
+  // Effect to draw distance radius circle
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Define radii and colors for each distance category
+    const distanceStyles: Record<DistanceRange, { radius: number; color: string }> = {
+      all: { radius: 0, color: "" },
+      lt2km: { radius: 2000, color: "#4ade80" },   // green-400
+      lt4km: { radius: 4000, color: "#38bdf8" },   // lightBlue-400
+      lt6km: { radius: 6000, color: "#fbbf24" },   // amber-400
+      lt8km: { radius: 8000, color: "#f87171" },   // red-400
+      lt10km: { radius: 10000, color: "#c084fc" },  // purple-400
+      gt10km: { radius: 10000, color: "#94a3b8" }, // slate-400 (or decide on a visual for 'greater than')
+    };
+
+    // Remove previous circle
+    if (radiusCircleRef.current) {
+      mapRef.current.removeLayer(radiusCircleRef.current);
+      radiusCircleRef.current = null;
+    }
+
+    // Draw new circle if a distance filter is active and user location is available
+    if (userLocation && distanceRange && distanceRange !== "all") {
+      const style = distanceStyles[distanceRange];
+      if (style) {
+        const circle = L.circle([userLocation.lat, userLocation.lng], {
+          radius: style.radius,
+          color: style.color,
+          weight: 2,
+          fillColor: style.color,
+          fillOpacity: 0.15,
+        }).addTo(mapRef.current);
+        radiusCircleRef.current = circle;
+
+        // Optionally, fit the map to the circle's bounds
+        mapRef.current.fitBounds(circle.getBounds(), { padding: [50, 50] });
+      }
+    }
+  }, [userLocation, distanceRange]);
+
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -176,7 +231,8 @@ export const MapView = ({
       } else {
         userLocationMarkerRef.current = L.marker(latlng, { icon: userLocationIcon }).addTo(mapRef.current);
       }
-      mapRef.current.setView(latlng, 16); // Set view to user location when it's available
+      // We remove setView from here to let the radius effect control the zoom
+      // mapRef.current.setView(latlng, 16); 
     } else {
       if (userLocationMarkerRef.current) {
         mapRef.current.removeLayer(userLocationMarkerRef.current);

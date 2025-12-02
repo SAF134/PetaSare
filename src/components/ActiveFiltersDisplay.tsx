@@ -36,7 +36,7 @@ const RATING_MAP: { [key: string]: string } = {
 };
 
 const DISTANCE_MAP: { [key in DistanceRange]: string } = {
-  "all": "Jarak terdekat",
+  "all": "Jarak Terdekat",
   "lt2km": "<= 2 km",
   "lt4km": "<= 4 km",
   "lt6km": "<= 6 km",

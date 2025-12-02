@@ -399,6 +399,7 @@ const Hotels = () => {
                 userLocation={userLocation}
                 onLocateUserTrigger={requestUserLocation}
                 onBoundsChange={handleBoundsChange}
+                distanceRange={filters.distanceRange}
               />
               {showMap && (
                 <Tooltip>
