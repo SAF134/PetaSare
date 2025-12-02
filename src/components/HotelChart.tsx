@@ -1,5 +1,4 @@
-"use client"
-
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList } from "recharts"
 import {
   Card,
@@ -36,31 +35,37 @@ const chartConfig = {
   // HOTEL BINTANG 1: hsl(220 15% 65%)
   "HOTEL-BINTANG-1": {
     label: "Bintang 1",
+    shortLabel: "B1",
     color: "hsl(220 15% 65%)", 
   },
   // HOTEL BINTANG 2: hsl(220 20% 95%)
   "HOTEL-BINTANG-2": {
     label: "Bintang 2",
+    shortLabel: "B2",
     color: "hsl(220 20% 95%)",
   },
   // HOTEL BINTANG 3: hsl(210 84% 62%)
   "HOTEL-BINTANG-3": {
     label: "Bintang 3",
+    shortLabel: "B3",
     color: "hsl(210 84% 62%)",
   },
   // HOTEL BINTANG 4: hsl(48 96% 59%)
   "HOTEL-BINTANG-4": {
     label: "Bintang 4",
+    shortLabel: "B4",
     color: "hsl(48 96% 59%)",
   },
   // HOTEL BINTANG 5: hsl(var(--primary))
   "HOTEL-BINTANG-5": {
     label: "Bintang 5",
+    shortLabel: "B5",
     color: "hsl(var(--primary))", // Pertahankan variabel tema untuk Bintang 5
   },
 } satisfies ChartConfig;
 
 export function HotelChart() {
+    const isMobile = useIsMobile();
   return (
     <Card>
       <CardHeader>
@@ -72,7 +77,12 @@ export function HotelChart() {
           <BarChart
             accessibilityLayer
             data={chartData}
-            margin={{
+            margin={isMobile ? {
+              top: 20,
+              right: 20,
+              bottom: 20,
+              left: 0,
+            } : {
               top: 20,
               right: 20,
               bottom: 20,
@@ -85,7 +95,11 @@ export function HotelChart() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => chartConfig[value.replace(/\s+/g, '-') as keyof typeof chartConfig]?.label || value}
+              tickFormatter={(value) => {
+                  const config = chartConfig[value.replace(/\s+/g, '-') as keyof typeof chartConfig];
+                  if (!config) return value;
+                  return isMobile ? config.shortLabel : config.label;
+              }}
             />
             <YAxis domain={[0, 70]} ticks={[0, 10, 20, 30, 40, 50, 60, 70]} />
             <ChartTooltip
@@ -101,7 +115,7 @@ export function HotelChart() {
                 position="top"
                 offset={10}
                 className="fill-foreground"
-                fontSize={12}
+                fontSize={isMobile ? 10 : 12}
               />
                 {chartData.map((entry) => (
                     <Cell key={`cell-${entry.category}`} fill={entry.fill} />

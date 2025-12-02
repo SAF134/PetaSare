@@ -7,7 +7,9 @@ import { HotelCardSkeleton } from "@/components/HotelCardSkeleton";
 import { HotelDetailModal } from "@/components/HotelDetailModal";
 import { MapView } from "@/components/MapView";
 import { Button } from "@/components/ui/button";
-import { ArrowUp, Bookmark, Home, MapPin, Expand, Minimize } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ArrowUp, Bookmark, Home, MapPin, Expand, Minimize, Search } from "lucide-react";
 import { LatLngBounds } from "leaflet";
 import { Header } from "@/components/Header";
 import { ActiveFiltersDisplay } from "@/components/ActiveFiltersDisplay";
@@ -43,6 +45,8 @@ const Hotels = () => {
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const navigate = useNavigate();
   const { userLocation, requestUserLocation } = useLocation();
+  const isMobile = useIsMobile();
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   // Animation variants for the title in the header
   const titleContainerVariants = {
@@ -323,7 +327,20 @@ const Hotels = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2 w-full md:w-auto">
+          {/* Tombol Search untuk Mobile */}
+          <div className="md:hidden">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" onClick={() => setShowSearchModal(true)} className="border-border transition-transform active:scale-95 h-9 w-9">
+                  <Search className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent><p>Cari Hotel</p></TooltipContent>
+            </Tooltip>
+          </div>
+
+          {/* Grup Tombol Utama */}
+          <div className="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant={showBookmarksOnly ? "default" : "outline"} size="sm" onClick={() => setShowBookmarksOnly(!showBookmarksOnly)} className={`${showBookmarksOnly ? "bg-primary" : "border-border"} transition-transform active:scale-95`}>
@@ -342,11 +359,18 @@ const Hotels = () => {
               </TooltipTrigger>
               <TooltipContent><p>{showMap ? "Sembunyikan peta" : "Tampilkan peta"}</p></TooltipContent>
             </Tooltip>
+            {/* Tombol Search untuk Desktop */}
+            <div className="hidden md:block">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" onClick={() => setShowSearchModal(true)} className="border-border transition-transform active:scale-95 h-9 w-9">
+                    <Search className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>Cari Hotel</p></TooltipContent>
+              </Tooltip>
+            </div>
           </div>
-        </div>
-
-        <div className="transition-all duration-300 ease-in-out h-auto opacity-100 mt-4">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
         </div>
 
         <div className="flex justify-between items-center transition-all duration-300 ease-in-out h-auto opacity-100 mt-3">
@@ -358,16 +382,23 @@ const Hotels = () => {
           {/* Menambahkan komponen jam waktu nyata di sini */}
           <RealTimeClock />
         </div>
+        <div className="pt-4">
+            <FilterPanelHorizontal
+                filters={filters}
+                onFiltersChange={setFilters}
+                onClear={handleClearFilters}
+                isLocationAvailable={!!userLocation}
+            />
+        </div>
       </Header>
-
-      {/* Horizontal Filters */}
-      <div className="container mx-auto px-4 pt-4">
-                  <FilterPanelHorizontal
-                    filters={filters}
-                    onFiltersChange={setFilters}
-                    onClear={handleClearFilters}
-                    isLocationAvailable={!!userLocation}
-                  />      </div>
+      <Dialog open={showSearchModal} onOpenChange={setShowSearchModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cari Nama Hotel</DialogTitle>
+          </DialogHeader>
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        </DialogContent>
+      </Dialog>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 pt-2 pb-6">

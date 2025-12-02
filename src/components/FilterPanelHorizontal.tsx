@@ -81,7 +81,7 @@ export const FilterPanelHorizontal = ({
   };
 
   return (
-    <div className="bg-card p-3 rounded-xl border border-border shadow-sm flex flex-wrap items-center gap-3">
+    <div className="bg-card p-3 rounded-xl border border-border shadow-sm flex flex-nowrap items-center gap-3">
       <div className="flex items-center gap-2 text-sm font-semibold text-foreground mr-2">
         <SlidersHorizontal className="h-4 w-4" />
         <span>Filter:</span>

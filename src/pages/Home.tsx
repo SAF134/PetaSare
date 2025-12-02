@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Hotel, MapPin, Star, Filter, CheckSquare, Map, Sun, Moon, Menu, PlayCircle, X, ExternalLink } from "lucide-react";
+import { ArrowUp, Hotel, MapPin, Star, Filter, CheckSquare, Map, Sun, Moon, Menu, PlayCircle, X, ExternalLink } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Logo from "@/assets/PetaSarePolos.png";
 import AnimatedPage from "@/components/AnimatedPage";
 import { Header } from "@/components/Header";
@@ -18,6 +18,7 @@ const Home = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,11 +27,25 @@ const Home = () => {
       } else {
         setIsScrolled(false);
       }
+
+      if (window.scrollY > 400) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
 
   const features = [
     {
@@ -347,6 +362,23 @@ const Home = () => {
       </main>
 
       <Footer />
+
+      {/* Back to Top Button */}
+      <AnimatePresence>
+        {showBackToTop && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50"
+          >
+            <Button onClick={scrollToTop} size="icon" className="rounded-full shadow-lg h-12 w-12">
+              <ArrowUp className="h-6 w-6" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AnimatedPage>
   );
 };

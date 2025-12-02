@@ -1,5 +1,4 @@
-"use client"
-
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList } from "recharts"
 import { Star } from "lucide-react"
 import {
@@ -80,6 +79,7 @@ const CustomTick = ({ x, y, payload }) => {
 };
 
 export function RatingChart() {
+    const isMobile = useIsMobile();
   return (
     <Card>
       <CardHeader>
@@ -91,7 +91,12 @@ export function RatingChart() {
           <BarChart
             accessibilityLayer
             data={chartData}
-            margin={{
+            margin={isMobile ? {
+              top: 20,
+              right: 20,
+              bottom: 20,
+              left: 0,
+            } : {
               top: 20,
               right: 20,
               bottom: 20,
@@ -116,7 +121,7 @@ export function RatingChart() {
                 position="top"
                 offset={10}
                 className="fill-foreground"
-                fontSize={12}
+                fontSize={isMobile ? 10 : 12}
               />
                 {chartData.map((entry) => (
                     <Cell key={`cell-${entry.range}`} fill={entry.fill} />
