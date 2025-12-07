@@ -212,6 +212,21 @@ const Hotels = () => {
     const timer = setTimeout(() => {
       let hotelsToDisplay = [...filteredHotels];
 
+      // Default sorting: 5-star hotels first, then cheapest price
+      hotelsToDisplay.sort((a, b) => {
+        // Extract star rating from kategori (e.g., "Bintang 5" -> 5)
+        const starA = parseInt(a.kategori.match(/\d+/)?.[0] || '0');
+        const starB = parseInt(b.kategori.match(/\d+/)?.[0] || '0');
+
+        // Sort by star rating in descending order
+        if (starB !== starA) {
+          return starB - starA;
+        }
+
+        // If star ratings are the same, sort by price in ascending order
+        return a.harga - b.harga;
+      });
+
       // Jika lokasi pengguna tersedia, urutkan hotel berdasarkan jarak terdekat
       if (userLocation) {
         hotelsToDisplay.sort((a, b) => {

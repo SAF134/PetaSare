@@ -2,7 +2,7 @@ import { Hotel } from "@/data/hotels";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Star, Bookmark, MapPin, Wifi, Snowflake, Car, Waves, UtensilsCrossed, Dumbbell, LucideIcon } from "lucide-react";
+import { Star, Bookmark, MapPin, Wifi, Snowflake, Car, Waves, UtensilsCrossed, Dumbbell, LucideIcon, ChevronRight } from "lucide-react";
 
 interface HotelCardProps {
   isHighlighted: boolean;
@@ -136,7 +136,8 @@ export const HotelCard = ({
           onClick={() => onViewDetails(hotel)}
           className="w-full bg-primary hover:bg-primary/90 transition-all active:scale-95 hover:shadow-md hover:shadow-primary/30"
         >
-          Lihat Selengkapnya
+          <strong>Lihat Selengkapnya</strong>
+          <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>
     </Card>

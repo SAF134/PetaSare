@@ -50,7 +50,7 @@ const Home = () => {
   const features = [
     {
       icon: Hotel,
-      title: "100+ Hotel Bintang 1 - 5",
+      title: "145 Hotel di Kota Bandung",
       description: "Informasi hotel yang lengkap",
       details: "Data kami mencakup hotel bintang 1 hingga 5, apartemen, dan guesthouse di seluruh area Bandung.",
     },
@@ -256,28 +256,27 @@ const Home = () => {
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               "Temukan titik nyamanmu di Kota Bandung! Jelajahi hotel pilihan dengan peta interaktif, dan dapatkan detail akurat tentang lokasi, harga terbaik, dan fasilitas lengkap dalam satu dashboard visual."
             </p>
-            <motion.div
-              className="inline-block"
-              animate={{
-                scale: [1, 1.03, 1],
-              }}
-              transition={{
-                duration: 2.5,
-                repeat: Infinity,
-                repeatType: "loop",
-                ease: "easeInOut",
-              }}
-            >
-              <Button 
-                onClick={() => navigate("/hotels")}
-                size="lg"
-                className="mt-8 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95"
-              >
-                <MapPin className="h-5 w-5 mr-2" />
-                Mulai Menjelajahi
-              </Button>
-            </motion.div>
-          </div>
+                                                            <motion.div
+                                                              className="inline-block"
+                                                              animate={{
+                                                                scale: [1, 1.03, 1],
+                                                              }}
+                                                              transition={{
+                                                                duration: 2.5,
+                                                                repeat: Infinity,
+                                                                repeatType: "loop",
+                                                                ease: "easeInOut",
+                                                              }}
+                                                            >
+                                                              <Button
+                                                                onClick={() => navigate("/hotels")}
+                                                                size="lg"
+                                                                className="mt-8 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95"
+                                                              >
+                                                                <MapPin className="h-5 w-5 mr-2" />
+                                                                Mulai Menjelajahi
+                                                              </Button>
+                                                            </motion.div>          </div>
 
           {/* How It Works Section */}
           <motion.div
